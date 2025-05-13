@@ -1,0 +1,41 @@
+const express = require('express');
+const { createProxyMiddleware } = require('http-proxy-middleware');
+const Consul = require('consul');     // ✅ Correct import
+const consul = new Consul(
+  {
+    host: 'consul',   // This must match the service name in docker-compose
+    port: '8500',
+    promisify: true
+  }
+);
+const app = express();
+
+const serviceMappings = {
+  '/auth': 'auth-service',
+  '/products': 'product-service',
+  '/cart': 'cart-service',
+  '/orders': 'order-service',
+  '/payments': 'payment-service'
+};
+
+app.use(express.json());
+
+Object.entries(serviceMappings).forEach(([route, serviceName]) => {
+  app.use(route, async (req, res, next) => {
+    try {
+      const instances = await consul.health.service(serviceName);
+      if (instances.length === 0) {
+        return res.status(502).send('Service unavailable');
+      }
+      const instance = instances[0];
+      createProxyMiddleware({
+        target: `http://${instance.Service.Address}:${instance.Service.Port}`,
+        changeOrigin: true
+      })(req, res, next);
+    } catch (err) {
+      res.status(500).send('Error routing request');
+    }
+  });
+});
+
+app.listen(3000, () => console.log('API Gateway running on port 3000'));

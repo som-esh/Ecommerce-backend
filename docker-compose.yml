@@ -1,0 +1,62 @@
+version: '3'
+services:
+  consul:
+    image: consul:1.15.4
+    ports:
+      - "8500:8500"
+    command: "agent -server -bootstrap -ui -client 0.0.0.0"
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - consul
+    environment:
+      - CONSUL_HTTP_ADDR=http://consul:8500
+
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "3001:3001"
+    depends_on:
+      - consul
+    environment:
+      - CONSUL_HTTP_ADDR=http://consul:8500
+
+  product-service:
+    build: ./product-service
+    ports:
+      - "3002:3002"
+    depends_on:
+      - consul
+
+  cart-service:
+    build: ./cart-service
+    ports:
+      - "3003:3003"
+    depends_on:
+      - consul
+
+  order-service:
+    build: ./order-service
+    ports:
+      - "3004:3004"
+    depends_on:
+      - consul
+
+  payment-service:
+    build: ./payment-service
+    ports:
+      - "3005:3005"
+    depends_on:
+      - consul
+    environment:
+      - CONSUL_HTTP_ADDR=http://consul:8500
+
+  notification-service:
+    build: ./notification-service
+    ports:
+      - "3006:3006"
+    depends_on:
+      - consul
