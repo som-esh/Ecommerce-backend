@@ -12,6 +12,7 @@ services:
       - "3000:3000"
     depends_on:
       - consul
+    restart: always
     environment:
       - CONSUL_HTTP_ADDR=http://consul:8500
 
@@ -21,6 +22,7 @@ services:
       - "3001:3001"
     depends_on:
       - consul
+    restart: always
     environment:
       - CONSUL_HTTP_ADDR=http://consul:8500
 
@@ -28,6 +30,7 @@ services:
     build: ./product-service
     ports:
       - "3002:3002"
+    restart: always
     depends_on:
       - consul
 
@@ -35,6 +38,7 @@ services:
     build: ./cart-service
     ports:
       - "3003:3003"
+    restart: always
     depends_on:
       - consul
 
@@ -42,6 +46,7 @@ services:
     build: ./order-service
     ports:
       - "3004:3004"
+    restart: always
     depends_on:
       - consul
 
@@ -51,6 +56,7 @@ services:
       - "3005:3005"
     depends_on:
       - consul
+    restart: always
     environment:
       - CONSUL_HTTP_ADDR=http://consul:8500
 
@@ -58,5 +64,6 @@ services:
     build: ./notification-service
     ports:
       - "3006:3006"
+    restart: always
     depends_on:
       - consul
